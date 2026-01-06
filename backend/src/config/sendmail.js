@@ -3,8 +3,8 @@ import { createTransport } from "nodemailer"
 const sendMail = async ({ email, subject, html }) => {
     const transporter = createTransport({
         host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        port: 465,
+        secure: true,
         logger: true,
         debug: true,
         tls: {
