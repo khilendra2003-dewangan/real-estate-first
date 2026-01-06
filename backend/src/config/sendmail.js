@@ -5,6 +5,12 @@ const sendMail = async ({ email, subject, html }) => {
         host: "smtp.gmail.com",
         port: 587,
         secure: false,
+        logger: true,
+        debug: true,
+        tls: {
+            rejectUnauthorized: true
+        },
+        family: 4,
         auth: {
             user: process.env.USER,
             pass: process.env.PASSWORD
