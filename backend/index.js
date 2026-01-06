@@ -48,6 +48,7 @@ export { redisClient, redisConnected };
 // Middleware
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'https://real-estate-frontend-9ryp.onrender.com',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 app.use(express.json());
