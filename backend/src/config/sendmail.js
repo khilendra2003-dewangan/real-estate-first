@@ -1,9 +1,8 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const sendMail = async ({ email, subject, html }) => {
     try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
         const data = await resend.emails.send({
             from: 'Real Estate <onboarding@resend.dev>', // Default testing domain
             to: email,
