@@ -1,19 +1,28 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const sendMail = async ({ email, subject, html }) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.USER,
+            pass: process.env.PASSWORD
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.USER,
+        to: email,
+        subject: subject,
+        html: html
+    };
+
     try {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const data = await resend.emails.send({
-            from: 'Real Estate <onboarding@resend.dev>', // Default testing domain
-            to: email,
-            subject: subject,
-            html: html,
-        });
-        console.log("📧 Email sent successfully:", data);
+        const info = await transporter.sendMail(mailOptions);
+        console.log("📧 Email sent: " + info.response);
     } catch (error) {
-        console.error("❌ Resend Error:", error);
-        throw error; // Re-throw to be caught by the controller
+        console.error("❌ Nodemailer Error:", error);
+        throw error; // Re-throw to trigger bypass
     }
-}
+};
 
 export default sendMail;
