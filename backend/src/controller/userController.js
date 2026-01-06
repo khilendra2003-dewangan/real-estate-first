@@ -33,7 +33,8 @@ export const signUpUser = TryCatch(async (req, res) => {
     });
   }
 
-  const { name, email, password, contact, agencyName, licenseNumber, experience, specialization } = validation.data;
+  const { name, email: rawEmail, password, contact, agencyName, licenseNumber, experience, specialization } = validation.data;
+  const email = rawEmail.toLowerCase();
 
   const rateLimiting = `signup-rate-limiting:${req.ip}:${email}`;
   if (await redisClient.get(rateLimiting)) {
@@ -172,7 +173,8 @@ export const loginUser = TryCatch(async (req, res) => {
     });
   }
 
-  const { email, password } = validation.data;
+  const { email: rawEmail, password } = validation.data;
+  const email = rawEmail.toLowerCase();
 
   const rateLimitKey = `login-rate-limit:${req.ip}:${email}`;
   if (await redisClient.get(rateLimitKey)) {
@@ -220,7 +222,8 @@ export const loginUser = TryCatch(async (req, res) => {
 
 // Verify OTP
 export const verifyOtp = TryCatch(async (req, res) => {
-  const { email, otp } = req.body;
+  const { email: rawEmail, otp } = req.body;
+  const email = rawEmail?.toLowerCase();
 
   if (!email || !otp) {
     return res.status(400).json({
@@ -271,7 +274,8 @@ export const verifyOtp = TryCatch(async (req, res) => {
 
 // Resend OTP
 export const resendOtp = TryCatch(async (req, res) => {
-  const { email } = req.body;
+  const { email: rawEmail } = req.body;
+  const email = rawEmail?.toLowerCase();
 
   if (!email) {
     return res.status(400).json({
