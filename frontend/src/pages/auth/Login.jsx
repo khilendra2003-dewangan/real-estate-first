@@ -58,7 +58,7 @@ const Login = () => {
                             <FiHome className="text-white text-xl" />
                         </div>
                         <span className="text-2xl font-serif font-bold text-white tracking-wide">
-                            Real<span className="text-cyan-400">Nest</span>
+                            Real<span className="text-cyan-400">Estate</span>Pro
                         </span>
                     </Link>
                 </div>
@@ -127,7 +127,7 @@ const Login = () => {
                             <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
                                 <FiHome className="text-white text-xl" />
                             </div>
-                            <span className="text-2xl font-serif font-bold text-white">RealNest</span>
+                            <span className="text-2xl font-serif font-bold text-white">RealEstatePro</span>
                         </div>
 
                         <h2 className="text-3xl font-bold text-white mb-3">Welcome Back!</h2>

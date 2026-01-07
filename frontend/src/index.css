@@ -8,6 +8,7 @@
 @layer base {
   body {
     font-family: 'Outfit', sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1,
@@ -36,8 +37,10 @@
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+@media (hover: hover) {
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
 }
 
 /* Custom utilities */
@@ -120,8 +123,10 @@
   @apply transition-transform duration-500;
 }
 
-.img-zoom:hover img {
-  @apply scale-110;
+@media (hover: hover) {
+  .img-zoom:hover img {
+    @apply scale-110;
+  }
 }
 
 /* Smooth Scroll */
@@ -134,8 +139,10 @@ html {
   text-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
 }
 
-.glow-card:hover {
-  box-shadow: 0 0 30px rgba(14, 165, 233, 0.15);
+@media (hover: hover) {
+  .glow-card:hover {
+    box-shadow: 0 0 30px rgba(14, 165, 233, 0.15);
+  }
 }
 
 .glass-card {

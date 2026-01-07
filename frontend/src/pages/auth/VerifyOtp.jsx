@@ -141,7 +141,7 @@ const VerifyOtp = () => {
                             <FiHome className="text-white text-xl" />
                         </div>
                         <span className="text-2xl font-serif font-bold text-white tracking-wide">
-                            Real<span className="text-cyan-400">Nest</span>
+                            Real<span className="text-cyan-400">Estate</span>Pro
                         </span>
                     </Link>
                 </div>
@@ -210,7 +210,7 @@ const VerifyOtp = () => {
                             <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
                                 <FiHome className="text-white text-xl" />
                             </div>
-                            <span className="text-2xl font-serif font-bold text-white">RealNest</span>
+                            <span className="text-2xl font-serif font-bold text-white">RealEstatePro</span>
                         </div>
 
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium mb-4">
@@ -270,8 +270,8 @@ const VerifyOtp = () => {
                             onClick={handleResend}
                             disabled={timer > 0 || loading}
                             className={`font-bold transition-colors decoration-2 underline-offset-4 ${timer > 0 || loading
-                                    ? 'text-gray-600 cursor-not-allowed no-underline'
-                                    : 'text-white hover:text-cyan-400 hover:underline decoration-cyan-500'
+                                ? 'text-gray-600 cursor-not-allowed no-underline'
+                                : 'text-white hover:text-cyan-400 hover:underline decoration-cyan-500'
                                 }`}
                         >
                             {timer > 0 ? `Resend in ${timer}s` : 'Resend Code'}
