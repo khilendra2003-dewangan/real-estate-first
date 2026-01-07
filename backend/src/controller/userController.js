@@ -37,7 +37,7 @@ export const signUpUser = TryCatch(async (req, res) => {
   const email = rawEmail.toLowerCase();
 
   const rateLimiting = `signup-rate-limiting:${req.ip}:${email}`;
-  if (await redisClient.get(rateLimiting)) {
+  if (redisClient && await redisClient.get(rateLimiting)) {
     return res.status(429).json({
       message: "Too many requests, please try again later",
     });
@@ -55,9 +55,9 @@ export const signUpUser = TryCatch(async (req, res) => {
   const verifyKey = `verify:${verifyToken}`;
   const verifyEmailKey = `verify:email:${email}`;
 
-  const oldToken = await redisClient.get(verifyEmailKey);
+  const oldToken = redisClient ? await redisClient.get(verifyEmailKey) : null;
   if (oldToken) {
-    await redisClient.del(`verify:${oldToken}`);
+    if (redisClient) await redisClient.del(`verify:${oldToken}`);
   }
 
   const data = JSON.stringify({
@@ -75,14 +75,16 @@ export const signUpUser = TryCatch(async (req, res) => {
     }),
   });
 
-  await redisClient.set(verifyKey, data, { EX: 300 });
-  await redisClient.set(verifyEmailKey, verifyToken, { EX: 300 });
+  if (redisClient) {
+    await redisClient.set(verifyKey, data, { EX: 300 });
+    await redisClient.set(verifyEmailKey, verifyToken, { EX: 300 });
+  }
 
   const subject = "Verification link for your Real Estate account";
   const html = getVerifyEmailHtml({ name, email, verifyToken });
 
   await sendmail({ email, subject, html });
-  await redisClient.set(rateLimiting, "true", { EX: 60 });
+  if (redisClient) await redisClient.set(rateLimiting, "true", { EX: 60 });
 
   res.status(200).json({
     message: "If your email is valid, a verification link has been sent. Valid for 5 minutes.",
@@ -100,7 +102,7 @@ export const verifyUser = TryCatch(async (req, res) => {
   }
 
   const verifyKey = `verify:${token}`;
-  const storeDataJson = await redisClient.get(verifyKey);
+  const storeDataJson = redisClient ? await redisClient.get(verifyKey) : null;
 
   if (!storeDataJson) {
     return res.status(400).json({
@@ -135,7 +137,7 @@ export const verifyUser = TryCatch(async (req, res) => {
   }
 
   const newUser = await User.create(userData);
-  await redisClient.del(verifyKey);
+  if (redisClient) await redisClient.del(verifyKey);
 
   const responseMessage = storeData.role === "agent"
     ? "Email verified successfully! Your agent account is pending admin approval."
@@ -177,7 +179,7 @@ export const loginUser = TryCatch(async (req, res) => {
   const email = rawEmail.toLowerCase();
 
   const rateLimitKey = `login-rate-limit:${req.ip}:${email}`;
-  if (await redisClient.get(rateLimitKey)) {
+  if (redisClient && await redisClient.get(rateLimitKey)) {
     return res.status(429).json({
       message: "Too many requests, please try again later",
     });
@@ -207,7 +209,7 @@ export const loginUser = TryCatch(async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpKey = `otp:${email}`;
-  await redisClient.set(otpKey, otp, { EX: 300 });
+  if (redisClient) await redisClient.set(otpKey, otp, { EX: 300 });
 
   const subject = "OTP for Real Estate Login Verification";
   const html = generateHtmlOTP({ name: user.name, email, otp });
@@ -218,7 +220,7 @@ export const loginUser = TryCatch(async (req, res) => {
     console.log("⚠️ Email sending failed. Bypass Mode Active.");
     console.log(`🔑 DEBUG OTP for ${email}: ${otp}`);
   }
-  await redisClient.set(rateLimitKey, "true", { EX: 60 });
+  if (redisClient) await redisClient.set(rateLimitKey, "true", { EX: 60 });
 
   res.status(200).json({
     message: "OTP has been sent to your email",
@@ -237,7 +239,7 @@ export const verifyOtp = TryCatch(async (req, res) => {
   }
 
   const otpKey = `otp:${email}`;
-  const storeOtp = await redisClient.get(otpKey);
+  const storeOtp = redisClient ? await redisClient.get(otpKey) : null;
 
   if (!storeOtp) {
     return res.status(400).json({
@@ -251,7 +253,7 @@ export const verifyOtp = TryCatch(async (req, res) => {
     });
   }
 
-  await redisClient.del(otpKey);
+  if (redisClient) await redisClient.del(otpKey);
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -296,7 +298,7 @@ export const resendOtp = TryCatch(async (req, res) => {
   }
 
   const rateLimitKey = `resend-otp-limit:${req.ip}:${email}`;
-  if (await redisClient.get(rateLimitKey)) {
+  if (redisClient && await redisClient.get(rateLimitKey)) {
     return res.status(429).json({
       message: "Please wait before resending OTP",
     });
@@ -304,7 +306,7 @@ export const resendOtp = TryCatch(async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpKey = `otp:${email}`;
-  await redisClient.set(otpKey, otp, { EX: 300 });
+  if (redisClient) await redisClient.set(otpKey, otp, { EX: 300 });
 
   const subject = "Resend OTP for Real Estate Login Verification";
   const html = generateHtmlOTP({ name: user.name, email, otp });
@@ -315,7 +317,7 @@ export const resendOtp = TryCatch(async (req, res) => {
     console.log("⚠️ Email sending failed. Bypass Mode Active.");
     console.log(`🔑 DEBUG OTP for ${email}: ${otp}`);
   }
-  await redisClient.set(rateLimitKey, "true", { EX: 60 });
+  if (redisClient) await redisClient.set(rateLimitKey, "true", { EX: 60 });
 
   res.status(200).json({
     message: "OTP resent successfully",
@@ -464,7 +466,7 @@ export const logoutUser = TryCatch(async (req, res) => {
   }
 
   const refreshTokenKey = `refresh_token:${userId}`;
-  await redisClient.del(refreshTokenKey);
+  if (redisClient) await redisClient.del(refreshTokenKey);
 
   res.clearCookie("accessToken", {
     httpOnly: true,

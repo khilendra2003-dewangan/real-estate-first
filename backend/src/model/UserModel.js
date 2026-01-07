@@ -89,7 +89,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Index for faster queries
-userSchema.index({ email: 1 });
+// Email index is already created by unique: true
 userSchema.index({ role: 1, isApproved: 1 });
 
 export const User = mongoose.model("User", userSchema);

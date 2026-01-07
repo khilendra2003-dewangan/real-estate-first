@@ -35,7 +35,7 @@ categorySchema.pre("save", function (next) {
     next();
 });
 
-categorySchema.index({ slug: 1 });
+// Slug index is already created by unique: true
 categorySchema.index({ isActive: 1 });
 
 export const Category = mongoose.model("Category", categorySchema);

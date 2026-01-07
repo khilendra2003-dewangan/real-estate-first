@@ -33,7 +33,11 @@ const initRedis = async () => {
             if (redisConnected) console.log('Redis Client Error', err.message);
         });
 
-        await redisClient.connect();
+        // Connect with timeout
+        await Promise.race([
+            redisClient.connect(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timeout')), 2000))
+        ]);
         redisConnected = true;
         console.log('✅ Redis connected successfully');
     } catch (error) {
@@ -98,10 +102,14 @@ const PORT = process.env.PORT || 3000;
 const startServer = async () => {
     try {
         // Try Redis but don't fail if not available
+        console.log('Initializing Redis...');
         await initRedis();
+        console.log('Redis initialization attempt complete.');
 
         // MongoDB is required
+        console.log('Connecting to MongoDB...');
         await connectDB();
+        console.log('MongoDB connected.');
 
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
