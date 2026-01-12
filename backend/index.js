@@ -1,19 +1,19 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import { createClient } from 'redis';
-import connectDB from './src/config/db.js';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { createClient } from "redis";
+import connectDB from "./src/config/db.js";
 
 // Import Routes
-import userRouter from './src/routes/userRouter.js';
-import adminRouter from './src/routes/adminRouter.js';
-import propertyRouter from './src/routes/propertyRouter.js';
-import categoryRouter from './src/routes/categoryRouter.js';
-import wishlistRouter from './src/routes/wishlistRouter.js';
-import inquiryRouter from './src/routes/inquiryRouter.js';
-import visitRouter from './src/routes/visitRouter.js';
-import locationRouter from './src/routes/locationRouter.js';
+import userRouter from "./src/routes/userRouter.js";
+import adminRouter from "./src/routes/adminRouter.js";
+import propertyRouter from "./src/routes/propertyRouter.js";
+import categoryRouter from "./src/routes/categoryRouter.js";
+import wishlistRouter from "./src/routes/wishlistRouter.js";
+import inquiryRouter from "./src/routes/inquiryRouter.js";
+import visitRouter from "./src/routes/visitRouter.js";
+import locationRouter from "./src/routes/locationRouter.js";
 
 dotenv.config();
 
@@ -24,101 +24,112 @@ let redisClient = null;
 let redisConnected = false;
 
 const initRedis = async () => {
-    try {
-        redisClient = createClient({
-            url: process.env.REDIS_URL || 'redis://localhost:6379'
-        });
+  try {
+    redisClient = createClient({
+      url: process.env.REDIS_URL || "redis://localhost:6379",
+    });
 
-        redisClient.on('error', (err) => {
-            if (redisConnected) console.log('Redis Client Error', err.message);
-        });
+    redisClient.on("error", (err) => {
+      if (redisConnected) console.log("Redis Client Error", err.message);
+    });
 
-        // Connect with timeout
-        await Promise.race([
-            redisClient.connect(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timeout')), 2000))
-        ]);
-        redisConnected = true;
-        console.log('✅ Redis connected successfully');
-    } catch (error) {
-        console.log('⚠️  Redis not available - running without rate limiting');
-        redisClient = null;
-        redisConnected = false;
-    }
+    // Connect with timeout
+    await Promise.race([
+      redisClient.connect(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Redis connection timeout")), 2000)
+      ),
+    ]);
+    redisConnected = true;
+    console.log("✅ Redis connected successfully");
+  } catch (error) {
+    console.log("⚠️  Redis not available - running without rate limiting");
+    redisClient = null;
+    redisConnected = false;
+  }
 };
 
 export { redisClient, redisConnected };
 
 // Middleware
-app.use(cors({
+app.use(
+  cors({
     origin: [
-        'http://localhost:5173',
-        'https://real-estate-frontend-9ryp.onrender.com',
-        process.env.FRONTEND_URL
+      "http://localhost:5173",
+      "https://real-estate-frontend-9ryp.onrender.com",
+      process.env.FRONTEND_URL,
     ].filter(Boolean),
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}));
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Health Check Route
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'OK',
-        message: 'Real Estate API is running',
-        redis: redisConnected ? 'connected' : 'not available',
-        timestamp: new Date().toISOString()
-    });
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "Real Estate API is running",
+    redis: redisConnected ? "connected" : "not available",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // API Routes
-app.use('/api/user', userRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/property', propertyRouter);
-app.use('/api/category', categoryRouter);
-app.use('/api/wishlist', wishlistRouter);
-app.use('/api/inquiry', inquiryRouter);
-app.use('/api/visit', visitRouter);
-app.use('/api/location', locationRouter);
+app.use("/api/user", userRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/property", propertyRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/wishlist", wishlistRouter);
+app.use("/api/inquiry", inquiryRouter);
+app.use("/api/visit", visitRouter);
+app.use("/api/location", locationRouter);
+
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+});
 
 // 404 Handler
 app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({ message: "Route not found" });
 });
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-    console.error('Error:', err.message);
-    res.status(err.status || 500).json({
-        message: err.message || 'Internal Server Error',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
+  console.error("Error:", err.message);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
-    try {
-        // Try Redis but don't fail if not available
-        console.log('Initializing Redis...');
-        await initRedis();
-        console.log('Redis initialization attempt complete.');
+  try {
+    // Try Redis but don't fail if not available
+    console.log("Initializing Redis...");
+    await initRedis();
+    console.log("Redis initialization attempt complete.");
 
-        // MongoDB is required
-        console.log('Connecting to MongoDB...');
-        await connectDB();
-        console.log('MongoDB connected.');
+    // MongoDB is required
+    console.log("Connecting to MongoDB...");
+    await connectDB();
+    console.log("MongoDB connected.");
 
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
-            console.log(`📍 Health check: http://localhost:${PORT}/health`);
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error.message);
-        process.exit(1);
-    }
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📍 Health check: http://localhost:${PORT}/health`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
 };
 
 startServer();
