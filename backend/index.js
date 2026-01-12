@@ -4,6 +4,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { createClient } from "redis";
 import connectDB from "./src/config/db.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // Import Routes
 import userRouter from "./src/routes/userRouter.js";
@@ -87,7 +89,10 @@ app.use("/api/inquiry", inquiryRouter);
 app.use("/api/visit", visitRouter);
 app.use("/api/location", locationRouter);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// Serve frontend
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 app.get("*", (req, res) => {
