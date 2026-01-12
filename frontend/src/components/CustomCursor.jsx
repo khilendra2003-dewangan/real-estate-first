@@ -51,7 +51,7 @@ const CustomCursor = () => {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+        <div className="hidden lg:block fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
             {/* Main Dot */}
             <motion.div
                 className="absolute w-2.5 h-2.5 bg-cyan-400 rounded-full mix-blend-difference"

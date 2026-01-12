@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { FiHome, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import { FiHome, FiArrowRight, FiCheckCircle, FiArrowLeft } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { authAPI } from '../../api/api';
@@ -192,6 +192,13 @@ const VerifyOtp = () => {
                 <div className="lg:hidden absolute inset-0 z-0">
                     <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="bg" className="w-full h-full object-cover opacity-20" />
                     <div className="absolute inset-0 bg-dark-950/90" />
+                </div>
+
+                {/* Back Button Mobile */}
+                <div className="absolute top-6 left-6 z-20 lg:hidden">
+                    <Link to="/" className="text-white bg-white/10 p-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition-all flex items-center justify-center">
+                        <FiArrowLeft size={24} />
+                    </Link>
                 </div>
 
                 {/* Animated Orbs */}
